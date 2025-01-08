@@ -110,7 +110,7 @@ def process_board_into_memory(board):
 
                     all_distance = [sum([abs(color_px[i] - px[i]) for i in range(3)]) for px in pixels]
 
-                    distance = sum(sorted(all_distance)[:3])
+                    distance = sum(sorted(all_distance)[:2])
                     
                     if distance < min_distance:
                         min_distance = distance
@@ -122,7 +122,7 @@ def process_board_into_memory(board):
 
 
 
-def output(grid, left, top, right, bottom):
+def output(grid, old_grid, left, top, right, bottom):
 
     width = len(grid[0])
     height = len(grid)
@@ -134,10 +134,14 @@ def output(grid, left, top, right, bottom):
         for col in range(width):
             if grid[row][col] == CHANGE_CONST:
                 pg.click(left + col * 37.5 + 18.5, top + row * 37.5 + 18.5)
-                total_changes += 1
             
             elif grid[row][col] == UNSEEN_CONST:
                 total_unseen += 1
+
+            if old_grid is None:
+                total_changes = 1
+            elif grid[row][col] != old_grid[row][col]:
+                    total_changes += 1
 
     return total_changes, total_unseen
 

@@ -2,11 +2,20 @@
 
 from collections import deque
 from imports import UNSEEN_CONST, MINE_CONST, CHANGE_CONST, EMPTY_CONST, print_grid
+import warnings
 
-def process(grid, total_mines = 99):
+
+def process(grid, old_grid=None, total_mines = 99):
 
     width = len(grid[0])
     height = len(grid)
+
+    # Check compatability of old grid
+
+    if old_grid is not None:
+        if width != len(old_grid[0]) or height != len(old_grid):
+            raise Exception("Grids are different sizes")
+                    
 
     # Find all numbers
 
@@ -16,6 +25,20 @@ def process(grid, total_mines = 99):
         for col in range(width):
             if grid[row][col] not in (UNSEEN_CONST, MINE_CONST, EMPTY_CONST, CHANGE_CONST):
                 number_cells.append((row, col))
+
+                # Find discrepancies with old grid and output warnings
+                if old_grid is not None:
+                    if grid[row][col] != old_grid[row][col] and old_grid[row][col] not in (UNSEEN_CONST, MINE_CONST, EMPTY_CONST, CHANGE_CONST):
+                        warnings.warn(f"Error: grids differ at ({col}, {row}), holding old value {old_grid[row][col]} and new value {grid[row][col]}")
+                        grid[row][col] = old_grid[row][col]
+
+
+            # Setting mines that were lost since the previous round
+            if old_grid is not None:
+
+                if old_grid[row][col] == MINE_CONST:
+
+                    grid[row][col] = MINE_CONST
 
 
     detect_mine_q = deque(number_cells)
@@ -99,7 +122,7 @@ def process(grid, total_mines = 99):
         
         if num_mines > int(grid[y][x]):
             print_grid(grid)
-            raise Exception(f"The number of mines is invalid for this board. Check position ({y+1}, {x+1}), with anticipated value {grid[y][x]}.")
+            raise Exception(f"The number of mines is invalid for this board. Check position ({y+1}, {x+1}), with anticipated value {grid[y][x]}. This error is likely due to the computer vision process reading the board incorrectly.")
         
 
     # Trialling mines on each number
@@ -195,27 +218,27 @@ def process(grid, total_mines = 99):
                 else:
                     grid[unseen_y][unseen_x] = MINE_CONST
 
-        # Computing number of mines and number of unseen
+    # Computing number of mines and number of unseen
 
-        unseen = []
-        num_mines = 0
-        for y in range(height):
-            for x in range(width):
+    unseen = []
+    num_mines = 0
+    for y in range(height):
+        for x in range(width):
 
-                if grid[y][x] == UNSEEN_CONST:
-                    unseen.append((y, x))
+            if grid[y][x] == UNSEEN_CONST:
+                unseen.append((y, x))
 
-                elif grid[y][x] == MINE_CONST:
-                    num_mines += 1
+            elif grid[y][x] == MINE_CONST:
+                num_mines += 1
 
 
-        if num_mines == total_mines:
-            for a, b in unseen:
-                grid[a][b] = CHANGE_CONST
-        
-        elif num_mines + len(unseen) == total_mines:
-            for a, b in unseen:
-                grid[a][b] = MINE_CONST
+    if num_mines == total_mines:
+        for a, b in unseen:
+            grid[a][b] = CHANGE_CONST
+    
+    elif num_mines + len(unseen) == total_mines:
+        for a, b in unseen:
+            grid[a][b] = MINE_CONST
 
         
 
