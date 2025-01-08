@@ -79,7 +79,7 @@ class Solver:
         return grid
 
     def copy(self, grid):
-        return [[cell for cell in row] for row in grid]
+        return [row[:] for row in grid]
 
     def reset(self):
         self.old_grid = None

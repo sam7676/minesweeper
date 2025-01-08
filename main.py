@@ -23,7 +23,7 @@ def run():
 
         total_changes, unseen = output(solver.grid, old_grid, left, top, right, bottom)
 
-        sleep(max(0.75, total_changes * 0.01 + 0.4))
+        sleep(max(0.75, total_changes * 0.02 + 0.3))
 
 if __name__ == '__main__':
 
